@@ -1,0 +1,4 @@
+
+openpose_ros_msgs/Persons persons
+---
+ros_openpose_gossip_msgs/PersonsGossip  personsGossip
