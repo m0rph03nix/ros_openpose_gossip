@@ -27,12 +27,15 @@ class OpenPoseGossip_node():
         #declare ros service 
         self.detectColorSrv = rospy.Service('openpose_gossip_srv', OPG_Srv, self.OPG_SrvCallback)
 
+        #instant of process object
+        self._opg=OPG()
+
         rospy.spin()
 
 
 
     def OPG_SrvCallback(self,req):
-        return OPG.EnrichPersonsData(req.personList)
+        return self._opg.EnrichPersonsData(req.persons)
 
 
 def main():

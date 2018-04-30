@@ -10,6 +10,7 @@ from openpose_ros_msgs.msg import Persons, PersonDetection, BodyPartDetection
 from ros_openpose_gossip_msgs.msg import PersonGossip, PersonsGossip
 from math import sqrt, pow, fabs, atan2, pi
 from enum import IntEnum
+from RawPoseIndex import RawPoseIndex
 import csv
 
 import rospkg
@@ -25,9 +26,6 @@ class OpenPoseGossip():
 
         self.image_w = 0
         self.image_h = 0
-
-        self.image_w = msg_im3.width #resp3.personList.image_w
-        self.image_h = msg_im3.height #resp3.personList.image_h
 
         #self.EnrichPersonsData(resp3.personList)
 
@@ -377,6 +375,8 @@ class OpenPoseGossip():
 
 
     def EnrichPersonsData(self, persons):
+        self.image_w = persons.image_w #resp3.personList.image_w
+        self.image_h = persons.image_h #resp3.personList.image_h
 
         #persons = sorted(persons.persons, key = lambda person : person.body_part[RawPoseIndex.Neck].x)  
         personsEnriched = []
