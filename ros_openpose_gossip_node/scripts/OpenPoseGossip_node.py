@@ -5,11 +5,6 @@ __author__ ='Raphael Leber'
 
 import rospy 
 import actionlib
-from std_msgs.msg import String
-from cv_bridge import CvBridge, CvBridgeError
-import cv2
-from skimage import color
-import numpy as np
 
 from ros_openpose_gossip_msgs.msg import PersonGossip, PersonGossip
 #from ros_openpose_gossip_actions.msg import *
@@ -25,10 +20,14 @@ class OpenPoseGossip_node():
         rospy.init_node('openspose_gossip_node', anonymous=False)
 
         #declare ros service 
-        self.detectColorSrv = rospy.Service('openpose_gossip_srv', OPG_Srv, self.OPG_SrvCallback)
+        self.opg_Srv = rospy.Service('openpose_gossip_srv', OPG_Srv, self.OPG_SrvCallback)
 
-        #instant of process object
-        self._opg=OPG()
+        rospy.loginfo("OpenPoseGossip_node init")
+
+        #instance of process object
+        self._opg = OPG()
+
+        rospy.loginfo("OpenPoseGossip process init")
 
         rospy.spin()
 

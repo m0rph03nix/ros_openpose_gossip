@@ -2,9 +2,6 @@
 __author__ = 'Raphael LEBER'
 import rospy
 from std_msgs.msg import String
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge, CvBridgeError
-import cv2
 from openpose_ros_srvs.srv import DetectPeoplePoseFromImg
 from openpose_ros_msgs.msg import Persons, PersonDetection, BodyPartDetection
 from ros_openpose_gossip_msgs.msg import PersonGossip, PersonsGossip
@@ -24,8 +21,15 @@ class OpenPoseGossip():
     # Must have __init__(self) function for a class, similar to a C++ class constructor.
     def __init__(self):
 
+        rospack = rospkg.RosPack()
+
+        # get the file path for rospy_tutorials
+        package_path=rospack.get_path('ros_openpose_gossip_node')
+
         self.image_w = 0
         self.image_h = 0
+
+        self.calib_folder = package_path + "/calib/"
 
         #self.EnrichPersonsData(resp3.personList)
 
@@ -331,7 +335,7 @@ class OpenPoseGossip():
 
     def LoadLimbsProfil(self, norm_distance):
 
-        with open('norm_%sm.csv' % str(norm_distance), mode='r') as infile:
+        with open(self.calib_folder + 'norm_%sm.csv' % str(norm_distance), mode='r') as infile:
             reader = csv.reader(infile)
             limbs = {rows[0]:float(rows[1]) for rows in reader} 
         
@@ -382,6 +386,7 @@ class OpenPoseGossip():
         personsEnriched = []
         pgs = PersonsGossip()
 
+
         for num, person in enumerate(persons.persons):
 
             limbs = self.PartsToLimbs(person)
@@ -401,38 +406,39 @@ class OpenPoseGossip():
             #print "\tCall hand:\t" + str(callHand)
             #print "\tDistance:\t" 
             
-            pg = PersonGossip()
+            
             
 
-            pg.posture = posture
-            pg.handCall = callHand
-            #pg.shirtRect = tuppRefLimb
-            #pg.trouserRect = 
-            pg.distanceEval = distance
 
-# string                  posture         # Possible values: Standing Sitting Lying Undefined
-# bool                    handCall        # Possible valuses: True False
-# geometry_msgs/Polygon   shirtRect       # coordinates of shirt rectangle sample 
-# geometry_msgs/Polygon   trouserRect     # coordinates of trouser rectangle sample
-# float32                 distanceEval    # Distance evaluation in meters from 2D informations            
-
-            pgs.append(pg)
 
             personsEnriched.append((person.body_part, limbs, joints, posture, callHand, distance))
 
         personsEnrichedSorted = sorted(personsEnriched, key=lambda attributes: attributes[0][RawPoseIndex.Neck].x)   # sort by     
 
-        return pgs
+        
 
        # for num, personEnriched in enumerate(personsEnrichedSorted):  
         #    norm_limbs = LoadLimbsProfil(num)
         
 
-        for num, personEnriched in enumerate(personsEnrichedSorted):     
+        for num, personEnriched in enumerate(personsEnrichedSorted):  
+            pg = PersonGossip()
+
             print "Person " + str(num) 
             print "\tPosture:\t" + personEnriched[3]
             print "\tCall hand:\t" + str(personEnriched[4]  )
             print "\tDistance:\t" + str(personEnriched[5]   )        
+
+            pg.id = num
+            pg.posture = personEnriched[3]
+            pg.handCall = personEnriched[4]
+            #pg.shirtRect = tuppRefLimb
+            #pg.trouserRect = 
+            pg.distanceEval = personEnriched[5]        
+
+            pgs.personsGossip.append(pg)
+        
+        return pgs
             
         #self.SaveLimbsProfil(limbs["abs"])
 
