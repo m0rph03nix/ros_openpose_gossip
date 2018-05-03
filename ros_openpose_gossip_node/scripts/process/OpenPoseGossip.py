@@ -2,6 +2,7 @@
 __author__ = 'Raphael LEBER'
 import rospy
 from std_msgs.msg import String
+from geometry_msgs.msg import Polygon, Point32
 from openpose_ros_srvs.srv import DetectPeoplePoseFromImg
 from openpose_ros_msgs.msg import Persons, PersonDetection, BodyPartDetection
 from ros_openpose_gossip_msgs.msg import PersonGossip, PersonsGossip
@@ -378,6 +379,99 @@ class OpenPoseGossip():
 
 
 
+
+
+    def getBoundingBox(self, body_part):
+
+        bps = body_part
+
+        for i in xrange(len(bps)):
+            if i < len(bps):
+                if bps[i].confidence == 0:
+                    bps.pop(i)
+
+
+        body_partSorted_x = sorted(bps, key=lambda attributes: attributes.x)   # sort by 
+        body_partSorted_y = sorted(bps, key=lambda attributes: attributes.y)   # sort by 
+
+        min_x = body_partSorted_x[0].x
+        max_x = body_partSorted_x[-1].x
+        min_y = body_partSorted_y[0].y
+        max_y = body_partSorted_y[-1].y
+
+        x_length = max_x - min_x
+        y_length = max_y - min_y
+
+        min_x = min_x - 0.1 * x_length
+        if min_x < 0 : min_x = 0
+
+        max_x = max_x + 0.1 * x_length
+        if max_x > self.image_w : max_x = self.image_w
+
+        min_y = min_y - 0.1 * y_length
+        if min_y < 0 : min_y = 0
+
+        max_y = max_y + 0.1 * y_length
+        if max_y > self.image_h : max_y = self.image_h       
+        
+        TopLeft     =   Point32(    x = min_x   , y = min_y      )
+        #TopRight    =   Point32(    x = max_x   , y = min_y      )
+        #DownLeft    =   Point32(    x = min_x   , y = max_y     )
+        DownRight   =   Point32(    x = max_x   , y = max_y     )
+
+        return [ TopLeft, DownRight ]
+
+
+    def getShirtRect(self, body_part):
+
+        x = fabs( body_part[RawPoseIndex.L_Hip].x - body_part[RawPoseIndex.R_Hip].x )
+        y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.R_Hip].y )
+
+        middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.R_Hip].x ) / 2
+        middle_y = (body_part[RawPoseIndex.Neck].y + body_part[RawPoseIndex.R_Hip].y ) / 2
+
+        coef_x = 0.3 # Must be < 0.5
+        coef_y = 0.3 # Must be < 0.5
+     
+        TopLeft     =   Point32(    x = middle_x - x*coef_x   , y = middle_y - y*coef_y      )
+
+        DownRight   =   Point32(    x = middle_x + x*coef_x   , y = middle_y + y*coef_y     )
+
+        return [ TopLeft, DownRight ]
+
+
+    def getTrouserRect(self, body_part, limbs):
+
+        if "R_Thigh" in limbs['abs']:
+            x = limbs['x']['R_Thigh']
+            y = limbs['y']['R_Thigh']
+            middle_x = ( body_part[RawPoseIndex.R_Hip].x + body_part[RawPoseIndex.R_Knee].x ) / 2
+            middle_y = (body_part[RawPoseIndex.R_Hip].y + body_part[RawPoseIndex.R_Knee].y ) / 2     
+            thigh_abs = limbs['abs']['R_Thigh']     
+        elif "L_Thigh" in limbs['abs']:
+            x = limbs['x']['L_Thigh']
+            y = limbs['y']['L_Thigh']
+            middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.L_Knee].x ) / 2
+            middle_y = (body_part[RawPoseIndex.L_Hip].y + body_part[RawPoseIndex.L_Knee].y ) / 2   
+            thigh_abs = limbs['abs']['R_Thigh'] 
+
+        coef_x = 0.3 # Must be < 0.5
+        coef_y = 0.3 # Must be < 0.5
+
+        kernel_side = 2
+     
+        #TopLeft     =   Point32(    x = middle_x - x*coef_x   , y = middle_y - y*coef_y      )
+
+        #DownRight   =   Point32(    x = middle_x + x*coef_x   , y = middle_y + y*coef_y     )
+
+        TopLeft     =   Point32(    x = middle_x - kernel_side   , y = middle_y - kernel_side      )
+
+        DownRight   =   Point32(    x = middle_x + kernel_side   , y = middle_y + kernel_side     )        
+
+        return [ TopLeft, DownRight ]        
+
+
+
     def EnrichPersonsData(self, persons):
         self.image_w = persons.image_w #resp3.personList.image_w
         self.image_h = persons.image_h #resp3.personList.image_h
@@ -432,6 +526,16 @@ class OpenPoseGossip():
             pg.id = num
             pg.posture = personEnriched[3]
             pg.handCall = personEnriched[4]
+            pg.boundingBox.points = self.getBoundingBox(personEnriched[0])
+
+            #                        [   Point32(x = 1.0   , y = 1.0     ),
+            #                            Point32(x = -1.0  , y = 1.0     ),
+            #                            Point32(x = -1.0  , y = -1.0    ),
+            #                            Point32(x = 1.0   , y = -1.0    )]            
+            pg.shirtRect.points = self.getShirtRect(personEnriched[0])
+            pg.trouserRect.points = self.getTrouserRect(personEnriched[0], personEnriched[1])
+
+
             #pg.shirtRect = tuppRefLimb
             #pg.trouserRect = 
             pg.distanceEval = personEnriched[5]        
