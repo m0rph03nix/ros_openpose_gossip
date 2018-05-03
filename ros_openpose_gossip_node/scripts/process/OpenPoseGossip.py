@@ -10,6 +10,7 @@ from math import sqrt, pow, fabs, atan2, pi
 from enum import IntEnum
 from RawPoseIndex import RawPoseIndex
 import csv
+from copy import deepcopy
 
 import rospkg
 
@@ -383,7 +384,7 @@ class OpenPoseGossip():
 
     def getBoundingBox(self, body_part):
 
-        bps = body_part
+        bps = deepcopy(body_part)
 
         for i in xrange(len(bps)):
             if i < len(bps):
@@ -453,7 +454,7 @@ class OpenPoseGossip():
             y = limbs['y']['L_Thigh']
             middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.L_Knee].x ) / 2
             middle_y = (body_part[RawPoseIndex.L_Hip].y + body_part[RawPoseIndex.L_Knee].y ) / 2   
-            thigh_abs = limbs['abs']['R_Thigh'] 
+            thigh_abs = limbs['abs']['L_Thigh'] 
 
         coef_x = 0.3 # Must be < 0.5
         coef_y = 0.3 # Must be < 0.5
