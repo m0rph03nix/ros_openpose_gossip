@@ -133,7 +133,7 @@ class OpenPoseGossip():
                     stand_up_score -= 0    
 
         #Sitting
-        if "R_Thigh" and "R_Calf" in limbs['abs'] :
+        if "R_Thigh" and "R_Calf" in limbs['y'] :
             if limbs['y']['R_Calf'] > limbs['y']['R_Thigh']:
                 sitting_score += 1
             else:
@@ -144,7 +144,7 @@ class OpenPoseGossip():
             else:
                 sitting_score -= 0   
 
-        if "L_Thigh" and "L_Calf" in limbs['abs'] :
+        if "L_Thigh" and "L_Calf" in limbs['y'] :
             if limbs['y']['L_Calf'] > limbs['y']['L_Thigh']:
                 sitting_score += 1
             else:
@@ -156,19 +156,19 @@ class OpenPoseGossip():
                 sitting_score -= 0        
 
         #Lying
-        if "R_Thigh" in limbs['abs']:
+        if "R_Thigh" in limbs['y']:
             if limbs['x']['R_Thigh'] > 2*limbs['y']['R_Thigh']:
                 lying_score += 0.5  
 
-        if "R_Calf" in limbs['abs']:
+        if "R_Calf" in limbs['y']:
             if limbs['x']['R_Calf'] > 2*limbs['y']['R_Calf']:
                 lying_score += 1              
 
-        if "L_Thigh" in limbs['abs']:
+        if "L_Thigh" in limbs['y']:
             if limbs['x']['L_Thigh'] > 2*limbs['y']['L_Thigh']:            
                 lying_score += 0.5  
 
-        if "L_Calf" in limbs['abs']:
+        if "L_Calf" in limbs['y']:
             if limbs['x']['L_Calf'] > 2*limbs['y']['L_Calf']:
                 lying_score += 1 
 
@@ -455,6 +455,9 @@ class OpenPoseGossip():
             middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.L_Knee].x ) / 2
             middle_y = (body_part[RawPoseIndex.L_Hip].y + body_part[RawPoseIndex.L_Knee].y ) / 2   
             thigh_abs = limbs['abs']['L_Thigh'] 
+        else :
+            return [  ]
+
 
         coef_x = 0.3 # Must be < 0.5
         coef_y = 0.3 # Must be < 0.5

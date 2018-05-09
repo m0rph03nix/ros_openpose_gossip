@@ -60,6 +60,3 @@ if __name__ == '__main__':
         LoadImgAndCallGossip()
     except rospy.ROSInterruptException:
         pass
-
-
-
