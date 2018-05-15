@@ -237,49 +237,49 @@ class OpenPoseGossip():
         above_score = 0
         callHand_score = 0
 
-        if  body_part[RawPoseIndex.R_Ankle].confidence > 0.1 :
+        if  body_part[RawPoseIndex.R_Wrist].confidence > 0.1 :
 
-            if body_part[RawPoseIndex.R_Wrist].confidence > 0.1 :
-                if  body_part[RawPoseIndex.R_Wrist].y > body_part[RawPoseIndex.R_Ankle].y :
+            if body_part[RawPoseIndex.R_Elbow].confidence > 0.1 :
+                if  body_part[RawPoseIndex.R_Elbow].y > body_part[RawPoseIndex.R_Wrist].y :
                     callHand_score += 1
 
             if  body_part[RawPoseIndex.R_Eye].confidence > 0.1 :
-                if  body_part[RawPoseIndex.R_Eye].y > body_part[RawPoseIndex.R_Ankle].y :
+                if  body_part[RawPoseIndex.R_Eye].y > body_part[RawPoseIndex.R_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.L_Eye].confidence > 0.1 :
-                if  body_part[RawPoseIndex.L_Eye].y > body_part[RawPoseIndex.R_Ankle].y :
+                if  body_part[RawPoseIndex.L_Eye].y > body_part[RawPoseIndex.R_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.Nose].confidence > 0.1 :
-                if  body_part[RawPoseIndex.Nose].y > body_part[RawPoseIndex.R_Ankle].y :
+                if  body_part[RawPoseIndex.Nose].y > body_part[RawPoseIndex.R_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.R_Ear].confidence > 0.1 :
-                if  body_part[RawPoseIndex.R_Ear].y > body_part[RawPoseIndex.R_Ankle].y :
+                if  body_part[RawPoseIndex.R_Ear].y > body_part[RawPoseIndex.R_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.L_Ear].confidence > 0.1 :
-                if  body_part[RawPoseIndex.L_Ear].y > body_part[RawPoseIndex.R_Ankle].y :
+                if  body_part[RawPoseIndex.L_Ear].y > body_part[RawPoseIndex.R_Wrist].y :
                     above_score += 1         
 
 
-        if  body_part[RawPoseIndex.L_Ankle].confidence > 0.1 :
+        if  body_part[RawPoseIndex.L_Wrist].confidence > 0.1 :
             
-            if body_part[RawPoseIndex.L_Wrist].confidence > 0.1 :
-                if  body_part[RawPoseIndex.L_Wrist].y > body_part[RawPoseIndex.L_Ankle].y :
+            if body_part[RawPoseIndex.L_Elbow].confidence > 0.1 :
+                if  body_part[RawPoseIndex.L_Elbow].y > body_part[RawPoseIndex.L_Wrist].y :
                     callHand_score += 1
 
             if  body_part[RawPoseIndex.R_Eye].confidence > 0.1 :
-                if  body_part[RawPoseIndex.R_Eye].y > body_part[RawPoseIndex.L_Ankle].y :
+                if  body_part[RawPoseIndex.R_Eye].y > body_part[RawPoseIndex.L_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.L_Eye].confidence > 0.1 :
-                if  body_part[RawPoseIndex.L_Eye].y > body_part[RawPoseIndex.L_Ankle].y :
+                if  body_part[RawPoseIndex.L_Eye].y > body_part[RawPoseIndex.L_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.Nose].confidence > 0.1 :
-                if  body_part[RawPoseIndex.Nose].y > body_part[RawPoseIndex.L_Ankle].y :
+                if  body_part[RawPoseIndex.Nose].y > body_part[RawPoseIndex.L_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.R_Ear].confidence > 0.1 :
-                if  body_part[RawPoseIndex.R_Ear].y > body_part[RawPoseIndex.L_Ankle].y :
+                if  body_part[RawPoseIndex.R_Ear].y > body_part[RawPoseIndex.L_Wrist].y :
                     above_score += 1
             if  body_part[RawPoseIndex.L_Ear].confidence > 0.1 :
-                if  body_part[RawPoseIndex.L_Ear].y > body_part[RawPoseIndex.L_Ankle].y :
+                if  body_part[RawPoseIndex.L_Ear].y > body_part[RawPoseIndex.L_Wrist].y :
                     above_score += 1     
 
         if above_score > 1 :

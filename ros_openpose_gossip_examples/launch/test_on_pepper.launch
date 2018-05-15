@@ -13,8 +13,10 @@
     <include file="$(find openpose_ros_node)/launch/serviceReadyTest.launch" required="true">
     </include>
 
+
     <node name="OpenPoseGossip" pkg="ros_openpose_gossip_node" type="OpenPoseGossip_node.py" output="screen" required="true">
     </node>
+    
 
     <node name="Test_OpenPoseGossip_withPepper" pkg="ros_openpose_gossip_examples" type="Test_OpenPoseGossip_withPepper.py" output="screen" required="true">
     </node>    
