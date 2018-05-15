@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+
+
+   <include file="$(find pepper_bringup)/launch/pepper_full.launch" required="true">
+
+        <arg name="nao_ip" value="pepper3.local:9559" />
+        <arg name="roscore_ip" value="192.168.0.71" />
+        <arg name="network_interface" value="wlp3s0" />
+
+    </include>
+
+    <include file="$(find openpose_ros_node)/launch/serviceReadyTest.launch" required="true">
+    </include>
+
+    <node name="OpenPoseGossip" pkg="ros_openpose_gossip_node" type="OpenPoseGossip_node.py" output="screen" required="true">
+    </node>
+
+    <node name="Test_OpenPoseGossip_withPepper" pkg="ros_openpose_gossip_examples" type="Test_OpenPoseGossip_withPepper.py" output="screen" required="true">
+    </node>    
+
+
+<!--
+
+  <rosparam file="$(find ros_color_detection_node)/config/common_color.yaml" />
+  <node pkg="ros_color_detection_node" type="ColorDetectionNode.py" name="ColorDetectionNode"  output="screen" >
+
+  </node>    -->
+
+</launch>
