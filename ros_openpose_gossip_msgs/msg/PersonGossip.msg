@@ -1,6 +1,8 @@
 int32                   id              # num of the person in the image (from left to right)
-string                  posture         # Possible values: Standing Sitting Lying Undefined
-bool                    handCall        # Possible valuses: True False
+string                  posture         # Possible values: "Standing" "Sitting" "Lying" "Undefined"
+#bool                    handCall        # Possible values: True False
+string[]                handPosture     # 1st string : left hand value, 2nd string : right hand value
+                                        # Values : "Undefined" "Call" "Pointing Left" "Crossed" "Pointing Right" (/!\ robot's left or right) 
 geometry_msgs/Polygon   boundingBox     # coordinates of a person bounding box
 geometry_msgs/Polygon   shirtRect       # coordinates of shirt rectangle sample 
 geometry_msgs/Polygon   trouserRect     # coordinates of trouser rectangle sample

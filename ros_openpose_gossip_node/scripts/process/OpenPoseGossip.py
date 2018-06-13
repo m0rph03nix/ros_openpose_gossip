@@ -290,6 +290,56 @@ class OpenPoseGossip():
             return False
 
 
+    def EstimateHandPosture(self, limbs, joints, body_part):     
+
+        wrist_LR_list = [RawPoseIndex.L_Wrist, RawPoseIndex.R_Wrist]
+        hand_status = ["", ""]
+        wrist_nb = 0
+
+        for lr, wrist_LR in enumerate(wrist_LR_list) :
+
+            if wrist_LR == RawPoseIndex.L_Wrist :
+                shoulder_LR = RawPoseIndex.L_Shoulder
+                elbow_LR = RawPoseIndex.L_Elbow
+                forearm_LR = 'L_Forearm'
+            else :
+                shoulder_LR = RawPoseIndex.R_Shoulder
+                elbow_LR = RawPoseIndex.R_Elbow
+                forearm_LR = 'R_Forearm'
+
+            if  body_part[wrist_LR].confidence > 0.1 and body_part[elbow_LR].confidence > 0.1 and body_part[shoulder_LR].confidence > 0.1 :
+                wrist_nb += 1
+
+                if limbs['x'][forearm_LR] > limbs['y'][forearm_LR] :
+                    if body_part[wrist_LR].x > body_part[shoulder_LR].x :
+                        hand_status[lr] = "Pointing Right" # Robot's right
+                    elif body_part[wrist_LR].x < body_part[shoulder_LR].x :
+                        hand_status[lr] = "Pointing Left" # Robot's right
+                    else :
+                        hand_status[lr] = "Undefined"
+
+                elif body_part[wrist_LR].y < body_part[shoulder_LR].y :
+                    hand_status[lr] = "Call"
+
+                else :
+                    hand_status[lr] = "Undefined"
+                    
+            else :
+                hand_status[lr] = "Undefined"
+
+        if wrist_nb == 2 : #hand_status[0].find("Pointing") >= 1 and hand_status[1].find("Pointing") >= 1 :
+            fa_L = body_part[RawPoseIndex.L_Wrist].x - body_part[RawPoseIndex.L_Shoulder].x
+            sh_L = body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.L_Shoulder].x
+            fa_R = body_part[RawPoseIndex.R_Wrist].x - body_part[RawPoseIndex.R_Shoulder].x
+            sh_R = body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.R_Shoulder].x            
+
+            if fa_L * sh_L > 0 and fa_R * sh_R > 0 :
+                hand_status = ["Crossed", "Crossed"]
+            
+
+        return hand_status
+
+
 #    def AbsToLimb(self, limbs, pair_key, value):
 #
 #        limbs[pair_key] = value
@@ -425,20 +475,23 @@ class OpenPoseGossip():
 
     def getShirtRect(self, body_part):
 
+        #if (RawPoseIndex.L_Hip in body_part) and (RawPoseIndex.R_Hip in body_part) and (RawPoseIndex.Neck in body_part) :
         x = fabs( body_part[RawPoseIndex.L_Hip].x - body_part[RawPoseIndex.R_Hip].x )
         y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.R_Hip].y )
 
         middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.R_Hip].x ) / 2
         middle_y = (body_part[RawPoseIndex.Neck].y + body_part[RawPoseIndex.R_Hip].y ) / 2
 
-        coef_x = 0.3 # Must be < 0.5
-        coef_y = 0.3 # Must be < 0.5
-     
+        coef_x = 0.4 # Must be < 0.5
+        coef_y = 0.4 # Must be < 0.5
+    
         TopLeft     =   Point32(    x = middle_x - x*coef_x   , y = middle_y - y*coef_y      )
 
         DownRight   =   Point32(    x = middle_x + x*coef_x   , y = middle_y + y*coef_y     )
 
         return [ TopLeft, DownRight ]
+        #else:
+            #return [  ]
 
 
     def getTrouserRect(self, body_part, limbs):
@@ -459,14 +512,8 @@ class OpenPoseGossip():
             return [  ]
 
 
-        coef_x = 0.3 # Must be < 0.5
-        coef_y = 0.3 # Must be < 0.5
-
-        kernel_side = 2
+        kernel_side = 4
      
-        #TopLeft     =   Point32(    x = middle_x - x*coef_x   , y = middle_y - y*coef_y      )
-
-        #DownRight   =   Point32(    x = middle_x + x*coef_x   , y = middle_y + y*coef_y     )
 
         TopLeft     =   Point32(    x = middle_x - kernel_side   , y = middle_y - kernel_side      )
 
@@ -494,7 +541,7 @@ class OpenPoseGossip():
 
             posture = self.EstimatePosture(limbs, joints, person.body_part)
             
-            callHand = self.EstimateCallHand(limbs, joints, person.body_part)
+            handPosture = self.EstimateHandPosture(limbs, joints, person.body_part)    #self.EstimateCallHand(limbs, joints, person.body_part)
 
             tuppRefLimb = self.RefLimb(limbs)
 
@@ -509,7 +556,7 @@ class OpenPoseGossip():
 
 
 
-            personsEnriched.append((person.body_part, limbs, joints, posture, callHand, distance))
+            personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance))
 
         personsEnrichedSorted = sorted(personsEnriched, key=lambda attributes: attributes[0][RawPoseIndex.Neck].x)   # sort by     
 
@@ -529,7 +576,8 @@ class OpenPoseGossip():
 
             pg.id = num
             pg.posture = personEnriched[3]
-            pg.handCall = personEnriched[4]
+            #pg.handCall = None
+            pg.handPosture = personEnriched[4]
             pg.boundingBox.points = self.getBoundingBox(personEnriched[0])
 
             #                        [   Point32(x = 1.0   , y = 1.0     ),
