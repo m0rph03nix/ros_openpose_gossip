@@ -295,7 +295,7 @@ class OpenPoseGossip():
         wrist_LR_list = [RawPoseIndex.L_Wrist, RawPoseIndex.R_Wrist]
         hand_status = ["", ""]
         wrist_nb = 0
-        ratio_xy = 0.75
+        ratio_xy = 0.5
 
         # For each arm : Left, then Right
         for lr, wrist_LR in enumerate(wrist_LR_list) :
@@ -318,12 +318,20 @@ class OpenPoseGossip():
                 # Test pointing
                 if limbs['x'][forearm_LR] > limbs['y'][forearm_LR] : # Forearm mainly with horizontal component ?
                     if limbs['x'][arm_LR] > ratio_xy*limbs['y'][arm_LR] : # Arm mainly with horizontal component ?
-                        if body_part[wrist_LR].x > body_part[shoulder_LR].x : # Right side of the robot ?
-                            hand_status[lr] = "Pointing Right" # Robot's right
-                        elif body_part[wrist_LR].x < body_part[shoulder_LR].x : # Left side of the robot ?
-                            hand_status[lr] = "Pointing Left" # Robot's right
+                        if body_part[elbow_LR].x > body_part[shoulder_LR].x : # Right side of the robot ?
+                            if body_part[wrist_LR].x > body_part[elbow_LR].x :
+                                hand_status[lr] = "Pointing Right" # Robot's right
+                            else : 
+                                hand_status[lr] = "Undefined" # hand on Hips
+                        elif body_part[elbow_LR].x < body_part[shoulder_LR].x : # Left side of the robot ?
+                            if body_part[wrist_LR].x < body_part[elbow_LR].x :
+                                hand_status[lr] = "Pointing Left" # Robot's right
+                            else :                             
+                                hand_status[lr] = "Undefined" # hand on Hips
                         else :
                             hand_status[lr] = "Undefined"
+                    else :
+                        hand_status[lr] = "Undefined"
 
                 # Test hand call
                 elif body_part[wrist_LR].y < body_part[shoulder_LR].y :
@@ -343,8 +351,8 @@ class OpenPoseGossip():
             sh_R = body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.R_Shoulder].x            
 
             if fa_L * sh_L > 0 and fa_R * sh_R > 0 : # Both forearm in the same direction that the soulder to neck vector ?
-                if limbs['x']['L_Forearm'] > limbs['y']['L_Forearm'] and limbs['x']['R_Forearm'] > limbs['y']['R_Forearm'] : # Forearm mainly with horizontal component ?
-                    hand_status = ["Crossed", "Crossed"]
+                #if limbs['x']['L_Forearm'] > limbs['y']['L_Forearm'] and limbs['x']['R_Forearm'] > limbs['y']['R_Forearm'] : # Forearm mainly with horizontal component ?
+                hand_status = ["Crossed", "Crossed"]
             
 
         return hand_status
