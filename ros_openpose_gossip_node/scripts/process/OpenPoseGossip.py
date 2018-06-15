@@ -343,7 +343,7 @@ class OpenPoseGossip():
             sh_R = body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.R_Shoulder].x            
 
             if fa_L * sh_L > 0 and fa_R * sh_R > 0 : # Both forearm in the same direction that the soulder to neck vector ?
-                if limbs['x'][L_Forearm] > limbs['y'][L_Forearm] and limbs['x'][L_Forearm] > limbs['y'][L_Forearm] : # Forearm mainly with horizontal component ?
+                if limbs['x']['L_Forearm'] > limbs['y']['L_Forearm'] and limbs['x']['R_Forearm'] > limbs['y']['R_Forearm'] : # Forearm mainly with horizontal component ?
                     hand_status = ["Crossed", "Crossed"]
             
 
