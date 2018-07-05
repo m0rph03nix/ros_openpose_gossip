@@ -447,27 +447,32 @@ class OpenPoseGossip():
         return a * limbs["abs"][limb_key] + b
 
 
-    #TODO : 1er full height,
 
 
     def getBoundingBox(self, body_part):
 
         bps = deepcopy(body_part)
 
-        for i in xrange(len(body_part), 0, -1):
-            if i < len(body_part):
-                if  bps[i].confidence == 0 \
-                    or body_part[i].x > self.image_w \
-                    or body_part[i].y > self.image_h \
-                    or body_part[i].x < 0 \
-                    or body_part[i].y < 0 :
+        for i in xrange(len(body_part)-1, -1, -1):
+            #if i < len(body_part):
+            #print 'toto ' + str(i)
+            if  bps[i].confidence == 0 \
+                or body_part[i].x > self.image_w \
+                or body_part[i].y > self.image_h \
+                or body_part[i].x < 0 \
+                or body_part[i].y < 0 :
 
-                    bps.pop(i)
+                bps.pop(i)
 
-        print str(bps)
+        #print "size = " + str(len(bps))
 
-        print "# image width: " + str(self.image_w)
-        print "# image height: " + str(self.image_h)
+        if len(bps) == 0 :
+            return [ ]
+
+        #print str(bps)
+
+        #print "# image width: " + str(self.image_w)
+        #print "# image height: " + str(self.image_h)
 
 
         body_partSorted_x = sorted(bps, key=lambda attributes: attributes.x)   # sort by 
@@ -497,6 +502,10 @@ class OpenPoseGossip():
         #TopRight    =   Point32(    x = max_x   , y = min_y      )
         #DownLeft    =   Point32(    x = min_x   , y = max_y     )
         DownRight   =   Point32(    x = max_x   , y = max_y     )
+
+        print "bb: " + str([ TopLeft, DownRight ])
+        #print "neck : " + str(body_part[RawPoseIndex.Neck].x) +" " + str(body_part[RawPoseIndex.Neck].y)
+
 
         return [ TopLeft, DownRight ]
 
