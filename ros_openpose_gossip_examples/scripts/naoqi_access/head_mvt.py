@@ -39,3 +39,14 @@ class head_mvt():
 	def enableAwareness(self, enabled):
 		basicAwarenessProxy = ALProxy("ALBasicAwareness", self.robotIP, self.PORT)
 		basicAwarenessProxy.setEnabled(enabled)
+
+
+if __name__ == '__main__':
+    try:
+        head = head_mvt()
+        head.look_straight()
+		print 'test'
+
+    except :#rospy.ROSInterruptException:
+        pass
+

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 __author__ ='Raphael Leber'
+
 import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
@@ -17,18 +18,27 @@ def LoadImgAndCallGossip():
     rospack = rospkg.RosPack()
 
     # get the file path for rospy_tutorials
-    package_path=rospack.get_path('openpose_ros_examples')
+    package_path=rospack.get_path('ros_openpose_gossip_examples')
     
     _bridge = CvBridge()
     
-    media_folder=package_path+'/media';
+    media_folder=package_path+'/media'
     rospy.loginfo("media_folder:"+str(media_folder))
+    #print "--> media_folder:"+str(media_folder) +'/moris_1m.jpg'
 
 
     rospy.init_node('LoadAndPublishImg', anonymous=True)
 
-    img_loaded = cv2.imread(media_folder+'/Raph_sit_Jacques_up.jpg')
+    img_loaded = cv2.imread(media_folder+'/group-diff-position.jpg')
+
+    #img_loaded = cv2.LoadImage(media_folder+'/moris.jpg', CV_LOAD_IMAGE_COLOR)
+
+    print "--> " + str(img_loaded)
+
+    #msg_img = _bridge.cv2_to_imgmsg(img_loaded, encoding="bgr8")
     msg_img = _bridge.cv2_to_imgmsg(img_loaded, encoding="bgr8")
+
+    print "import image OK !"
 
     #call service to learn people
     rospy.wait_for_service('people_pose_from_img')
