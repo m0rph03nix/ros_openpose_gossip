@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 __author__ = 'Raphael LEBER'
+__copyright__ = "Copyright 2018, CPE Lyon, Lyontech"
+__credits__ = ["Raphael Leber"]
+__license__ = "MIT"
+__version__ = "1.1.0"
+__maintainer__ = 'Raphael LEBER'
+__email__ = 'raphael.leber@gmail.com    '
+__status__ = "Robocup 2018"
+
+
 import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Polygon, Point32
