@@ -3,8 +3,6 @@
 ## 1. Description
 This package gives information on people based on openpose messages 
 
-[comment]: <> (ajouter image)
-
 openpose_gossip gives informations on people sorted from left to right such as :
 <pre>
 - id                # num of the person in the image (from left to right)
@@ -25,11 +23,12 @@ This program was done for the pepper robot (front camera) with some specificatio
 
 ## 3.  Dependencies
 [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose)
+@cr
 [ros_openpose (fork)](https://github.com/jacques-saraydaryan/ros-openpose.git)
 
 ## 4.  Quick start
 
-### 41 Launch the openpose service
+### 4.1 Launch the openpose service
 &nbsp;&nbsp; roslaunch openpose_ros_node serviceReadyTest.launch  
 
 ### 4.2 Run the Gossip service
@@ -41,4 +40,5 @@ This program was done for the pepper robot (front camera) with some specificatio
 &nbsp;&nbsp; roslaunch ros_openpose_gossip_examples test_with_file.launch  
 
 ## 5.  Calibration
-If you use this package with another camera than the front camera of the pepper, you will need to do a calibration. It consists of recording the limbs length of an "average" person, in a standing position, maximizing (with a natural front pose) each limbs length. Function SaveLimbsProfil can be used but is not implemented in a calibration program (TODO).
+If you use this package with another camera than the front camera of the pepper, you will need to do a calibration. It consists of recording the limbs length of an "average" person at a known distance, in a standing position, maximizing (with a natural front pose) each limbs length. Function SaveLimbsProfil can be used but is not implemented in a calibration program (TODO).
+@cr The algorithm will then compare the longest limb (which means with the highest 2D components) with the limb in one of the CSV file (explanation simplified).
