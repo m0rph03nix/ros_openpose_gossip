@@ -11,7 +11,7 @@ openpose_gossip gives informations on people sorted from left to right such as :
 - boundingBox       # coordinates of a person bounding box
 - shirtRect         # coordinates of shirt rectangle sample 
 - trouserRect       # coordinates of trouser rectangle sample
-- distanceEval      # Distance evaluation in meters from 2D informations (need calibration)
+- distanceEval      # Distance evaluation in meters from 2D informations (see 5.  Calibration)
 </pre>
 
 This program was done for the pepper robot (front camera) with some specifications :
@@ -22,8 +22,7 @@ This program was done for the pepper robot (front camera) with some specificatio
 * Raphaël LEBER
 
 ## 3.  Dependencies
-[openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose)
-\n
+[openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose)  
 [ros_openpose (fork)](https://github.com/jacques-saraydaryan/ros-openpose.git)
 
 ## 4.  Quick start
@@ -40,5 +39,5 @@ This program was done for the pepper robot (front camera) with some specificatio
 &nbsp;&nbsp; roslaunch ros_openpose_gossip_examples test_with_file.launch  
 
 ## 5.  Calibration
-If you use this package with another camera than the front camera of the pepper, you will need to do a calibration. It consists of recording the limbs length of an "average" person at a known distance, in a standing position, maximizing (with a natural front pose) each limbs length. Function SaveLimbsProfil can be used but is not implemented in a calibration program (TODO).
-\n The algorithm will then compare the longest limb (which means with the highest 2D components) with the limb in one of the CSV file (explanation simplified).
+If you use this package with another camera than the front camera of the pepper, you will need to do a calibration. It consists of recording the limbs length of an "average" person at a known distance, in a standing position, maximizing (with a natural front pose) each limbs length. Function SaveLimbsProfil can be used but is not implemented in a calibration program (TODO).  
+The algorithm will then compare the longest limb (which means with the highest 2D components) with the limb in one of the CSV file (explanation simplified).
