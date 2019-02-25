@@ -521,23 +521,37 @@ class OpenPoseGossip():
 
     def getShirtRect(self, body_part):
 
-        #if (RawPoseIndex.L_Hip in body_part) and (RawPoseIndex.R_Hip in body_part) and (RawPoseIndex.Neck in body_part) :
-        x = fabs( body_part[RawPoseIndex.L_Hip].x - body_part[RawPoseIndex.R_Hip].x )
-        y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.R_Hip].y )
+        if ("L_Hip" in limbs['abs']) and ("R_Hip" in limbs['abs']) and ("Neck" in limbs['abs']) :
+            x = fabs( body_part[RawPoseIndex.L_Hip].x - body_part[RawPoseIndex.R_Hip].x )
+            y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.R_Hip].y )            
+            middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.R_Hip].x ) / 2
+            middle_y = (body_part[RawPoseIndex.Neck].y * 2 + body_part[RawPoseIndex.R_Hip].y + body_part[RawPoseIndex.L_Hip].y ) / 4
 
-        middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.R_Hip].x ) / 2
-        middle_y = (body_part[RawPoseIndex.Neck].y + body_part[RawPoseIndex.R_Hip].y ) / 2
+        elif ("L_Hip" in limbs['abs']) and ("Neck" in limbs['abs']) :
+            x = fabs( body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.L_Hip].x )
+            y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.L_Hip].y )            
+            middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.Neck].x ) / 2
+            middle_y = (body_part[RawPoseIndex.Neck].y + body_part[RawPoseIndex.L_Hip].y ) / 2
+        
+        elif ("R_Hip" in limbs['abs']) and ("Neck" in limbs['abs']) :
+            x = fabs( body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.R_Hip].x )
+            y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.R_Hip].y )               
+            middle_x = ( body_part[RawPoseIndex.R_Hip].x + body_part[RawPoseIndex.Neck].x ) / 2
+            middle_y = (body_part[RawPoseIndex.Neck].y + body_part[RawPoseIndex.R_Hip].y ) / 2  
+        
+        else :
+            return [ ]
+
 
         coef_x = 0.4 # Must be < 0.5
-        coef_y = 0.4 # Must be < 0.5
+        coef_y = 0.35 # Must be < 0.5
     
         TopLeft     =   Point32(    x = middle_x - x*coef_x   , y = middle_y - y*coef_y      )
 
         DownRight   =   Point32(    x = middle_x + x*coef_x   , y = middle_y + y*coef_y     )
 
         return [ TopLeft, DownRight ]
-        #else:
-            #return [  ]
+
 
 
     def getTrouserRect(self, body_part, limbs):
