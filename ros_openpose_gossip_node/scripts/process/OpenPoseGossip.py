@@ -495,13 +495,22 @@ class OpenPoseGossip():
         x_length = max_x - min_x
         y_length = max_y - min_y
 
+        if ("R_NoseToEye" in limbs['abs']) and ("L_NoseToEye" in limbs['abs']) :
+            eyes_to_hair = (limbs['abs']["R_NoseToEye"] + limbs['abs']["R_NoseToEye"]) / 2
+        elif ("R_NoseToEye" in limbs['abs']) :
+            eyes_to_hair = limbs['abs']["R_NoseToEye"]
+        elif ("L_NoseToEye" in limbs['abs']) :
+            eyes_to_hair = limbs['abs']["L_NoseToEye"]         
+        else :
+            eyes_to_hair = 4         
+
         min_x = min_x - 0.1 * x_length
         if min_x < 0 : min_x = 0
 
         max_x = max_x + 0.1 * x_length
         if max_x > self.image_w : max_x = self.image_w
 
-        min_y = min_y - 0.1 * y_length
+        min_y = min_y - 0.1 * y_length - eyes_to_hair # TODO : eyes_to_hair must consider person orientation
         if min_y < 0 : min_y = 0
 
         max_y = max_y + 0.1 * y_length
