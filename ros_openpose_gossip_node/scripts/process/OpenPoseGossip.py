@@ -458,34 +458,13 @@ class OpenPoseGossip():
 
 
 
-    def getBoundingBox(self, body_part, limbs):
+    def makeBounginBox(self, body_part_limited, limbs):
 
-        bps = deepcopy(body_part)
-
-        for i in xrange(len(body_part)-1, -1, -1):
-            #if i < len(body_part):
-            #print 'toto ' + str(i)
-            if  bps[i].confidence == 0 \
-                or body_part[i].x > self.image_w \
-                or body_part[i].y > self.image_h \
-                or body_part[i].x < 0 \
-                or body_part[i].y < 0 :
-
-                bps.pop(i)
-
-        #print "size = " + str(len(bps))
-
-        if len(bps) == 0 :
+        if len(body_part_limited) == 0 :
             return [ ]
 
-        #print str(bps)
-
-        #print "# image width: " + str(self.image_w)
-        #print "# image height: " + str(self.image_h)
-
-
-        body_partSorted_x = sorted(bps, key=lambda attributes: attributes.x)   # sort by 
-        body_partSorted_y = sorted(bps, key=lambda attributes: attributes.y)   # sort by 
+        body_partSorted_x = sorted(body_part_limited, key=lambda attributes: attributes.x)   # sort by 
+        body_partSorted_y = sorted(body_part_limited, key=lambda attributes: attributes.y)   # sort by 
 
         min_x = body_partSorted_x[0].x
         max_x = body_partSorted_x[-1].x
@@ -522,9 +501,25 @@ class OpenPoseGossip():
         DownRight   =   Point32(    x = max_x   , y = max_y     )
 
         print "bb: " + str([ TopLeft, DownRight ])
-        #print "neck : " + str(body_part[RawPoseIndex.Neck].x) +" " + str(body_part[RawPoseIndex.Neck].y)
 
-        return [ TopLeft, DownRight ]
+        return [ TopLeft, DownRight ]     
+
+
+
+    def getBoundingBox(self, body_part, limbs):
+
+        bps = deepcopy(body_part)
+
+        for i in xrange(len(body_part)-1, -1, -1):
+            if  bps[i].confidence == 0 \
+                or body_part[i].x > self.image_w \
+                or body_part[i].y > self.image_h \
+                or body_part[i].x < 0 \
+                or body_part[i].y < 0 :
+
+                bps.pop(i)
+
+        return self.makeBounginBox(bps, limbs)
 
 
 
@@ -533,8 +528,6 @@ class OpenPoseGossip():
         bps = deepcopy(body_part)
 
         for i in xrange(len(body_part)-1, -1, -1):
-            #if i < len(body_part):
-            #print 'toto ' + str(i)
             if  bps[i].confidence == 0 \
                 or body_part[i].x > self.image_w \
                 or body_part[i].y > self.image_h \
@@ -556,52 +549,7 @@ class OpenPoseGossip():
 
                 bps.pop(i)
 
-        #print "size = " + str(len(bps))
-
-        if len(bps) == 0 :
-            return [ ]
-
-        body_partSorted_x = sorted(bps, key=lambda attributes: attributes.x)   # sort by 
-        body_partSorted_y = sorted(bps, key=lambda attributes: attributes.y)   # sort by 
-
-        min_x = body_partSorted_x[0].x
-        max_x = body_partSorted_x[-1].x
-        min_y = body_partSorted_y[0].y
-        max_y = body_partSorted_y[-1].y
-
-        x_length = max_x - min_x
-        y_length = max_y - min_y
-
-        if ("R_NoseToEye" in limbs['abs']) and ("L_NoseToEye" in limbs['abs']) :
-            eyes_to_hair = (limbs['abs']["R_NoseToEye"] + limbs['abs']["R_NoseToEye"]) / 2
-        elif ("R_NoseToEye" in limbs['abs']) :
-            eyes_to_hair = limbs['abs']["R_NoseToEye"]
-        elif ("L_NoseToEye" in limbs['abs']) :
-            eyes_to_hair = limbs['abs']["L_NoseToEye"]         
-        else :
-            eyes_to_hair = 4         
-
-        min_x = min_x - 0.1 * x_length
-        if min_x < 0 : min_x = 0
-
-        max_x = max_x + 0.1 * x_length
-        if max_x > self.image_w : max_x = self.image_w
-
-        min_y = min_y - 0.1 * y_length - eyes_to_hair # TODO : eyes_to_hair must consider person orientation
-        if min_y < 0 : min_y = 0
-
-        max_y = max_y + 0.1 * y_length
-        if max_y > self.image_h : max_y = self.image_h       
-        
-        TopLeft     =   Point32(    x = min_x   , y = min_y      )
-        #TopRight    =   Point32(    x = max_x   , y = min_y      )
-        #DownLeft    =   Point32(    x = min_x   , y = max_y     )
-        DownRight   =   Point32(    x = max_x   , y = max_y     )
-
-        print "bb head: " + str([ TopLeft, DownRight ])
-        #print "neck : " + str(body_part[RawPoseIndex.Neck].x) +" " + str(body_part[RawPoseIndex.Neck].y)
-
-        return [ TopLeft, DownRight ]
+        return self.makeBounginBox(bps, limbs)
 
 
 
