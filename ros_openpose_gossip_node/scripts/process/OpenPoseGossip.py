@@ -595,8 +595,10 @@ class OpenPoseGossip():
     def getCam2MapXYPoint(self, neck_x, distance):
         
             HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
-            Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
-            Cam2MapXYPoint = Point32(    x = distance * sin(Phi)   , y = distance * cos(Phi)      )
+            #Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
+            Phi = (HFov / 2.0) *  (neck_x - self.image_w / 2)/(self.image_w/2) #Angle from the center of the camera to neck_x
+            print "####PHI = " + str(Phi)
+            return Point32(    x = distance  , y = distance * sin(Phi)      )
 
 
 
@@ -629,9 +631,9 @@ class OpenPoseGossip():
             #print "\tDistance:\t" 
             
             #if RawPoseIndex.Neck in person.body_part :
-            #Cam2MapXYPoint = self.getCam2MapXYPoint(10, 10) #distance)
+            Cam2MapXYPoint = self.getCam2MapXYPoint(person.body_part[RawPoseIndex.Neck].x, distance)
             #else:
-            Cam2MapXYPoint = Point32(x=1, y=2)          # person.body_part[RawPoseIndex.Neck].x
+            #Cam2MapXYPoint = Point32(x=1, y=2)          # person.body_part[RawPoseIndex.Neck].x
 
 
             personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance, Cam2MapXYPoint))
