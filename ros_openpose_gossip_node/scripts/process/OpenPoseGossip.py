@@ -15,7 +15,7 @@ from geometry_msgs.msg import Polygon, Point32
 from openpose_ros_srvs.srv import DetectPeoplePoseFromImg
 from openpose_ros_msgs.msg import Persons, PersonDetection, BodyPartDetection
 from ros_openpose_gossip_msgs.msg import PersonGossip, PersonsGossip
-from math import sqrt, pow, fabs, atan2, pi
+from math import sqrt, pow, fabs, atan2, pi, cos, sin
 from enum import IntEnum
 from RawPoseIndex import RawPoseIndex
 import csv
@@ -593,8 +593,9 @@ class OpenPoseGossip():
 
 
     def getCam2MapXYPoint(self, neck_x, distance):
-            HFOV = 57.2 * pi / 180  # Horizontal field of view of the front Pepper Camera
-            Phi = (HFOV / 2) * ( (2*neck_x)/self.image_w + 1) # Angle from the center of the camera to neck_x
+        
+            HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
+            Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
             Cam2MapXYPoint = Point32(    x = distance * sin(Phi)   , y = distance * cos(Phi)      )
 
 
@@ -627,7 +628,10 @@ class OpenPoseGossip():
             #print "\tCall hand:\t" + str(callHand)
             #print "\tDistance:\t" 
             
-            Cam2MapXYPoint = self.getCam2MapXYPoint(person.body_part[RawPoseIndex.Neck].x, distance)
+            if RawPoseIndex.Neck in person.body_part :
+                Cam2MapXYPoint = self.getCam2MapXYPoint(person.body_part[RawPoseIndex.Neck].x, distance)
+            else:
+                Cam2MapXYPoint = Point32()
 
 
             personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance, Cam2MapXYPoint))
