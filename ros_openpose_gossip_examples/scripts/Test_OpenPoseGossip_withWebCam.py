@@ -8,7 +8,7 @@ import cv2
 from openpose_ros_srvs.srv import DetectPeoplePoseFromImg
 from ros_openpose_gossip_srvs.srv import OpenPoseGossip as OPG_Srv
 
-from naoqi_access.head_mvt import head_mvt
+#from naoqi_access.head_mvt import head_mvt
 
 import rospkg
 

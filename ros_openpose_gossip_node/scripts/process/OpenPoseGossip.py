@@ -458,7 +458,7 @@ class OpenPoseGossip():
 
 
 
-    def getBoundingBox(self, body_part):
+    def getBoundingBox(self, body_part, limbs):
 
         bps = deepcopy(body_part)
 
@@ -592,6 +592,13 @@ class OpenPoseGossip():
 
 
 
+    def getCam2MapXYPoint(self, neck_x, distance):
+            HFOV = 57.2 * pi / 180  # Horizontal field of view of the front Pepper Camera
+            Phi = (HFOV / 2) * ( (2*neck_x)/self.image_w + 1) # Angle from the center of the camera to neck_x
+            Cam2MapXYPoint = Point32(    x = distance * sin(Phi)   , y = distance * cos(Phi)      )
+
+
+
     def EnrichPersonsData(self, persons):
         self.image_w = persons.image_w #resp3.personList.image_w
         self.image_h = persons.image_h #resp3.personList.image_h
@@ -620,12 +627,11 @@ class OpenPoseGossip():
             #print "\tCall hand:\t" + str(callHand)
             #print "\tDistance:\t" 
             
-            
-            
+            Cam2MapXYPoint = self.getCam2MapXYPoint(person.body_part[RawPoseIndex.Neck].x, distance)
 
 
-
-            personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance))
+            personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance, Cam2MapXYPoint))
+            #personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance))
 
         personsEnrichedSorted = sorted(personsEnriched, key=lambda attributes: attributes[0][RawPoseIndex.Neck].x)   # sort by     
 
@@ -647,7 +653,7 @@ class OpenPoseGossip():
             pg.posture = personEnriched[3]
             #pg.handCall = None
             pg.handPosture = personEnriched[4]
-            pg.boundingBox.points = self.getBoundingBox(personEnriched[0])
+            pg.boundingBox.points = self.getBoundingBox(personEnriched[0], personEnriched[1])
 
             #                        [   Point32(x = 1.0   , y = 1.0     ),
             #                            Point32(x = -1.0  , y = 1.0     ),
@@ -660,6 +666,8 @@ class OpenPoseGossip():
             #pg.shirtRect = tuppRefLimb
             #pg.trouserRect = 
             pg.distanceEval = personEnriched[5]        
+
+            pg.Cam2MapXYPoint = personEnriched[6]   
 
             pgs.personsGossip.append(pg)
         

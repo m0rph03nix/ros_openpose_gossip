@@ -7,3 +7,4 @@ geometry_msgs/Polygon   boundingBox     # coordinates of a person bounding box
 geometry_msgs/Polygon   shirtRect       # coordinates of shirt rectangle sample 
 geometry_msgs/Polygon   trouserRect     # coordinates of trouser rectangle sample
 float32                 distanceEval    # Distance evaluation in meters from 2D informations
+geometry_msgs/Point32   Cam2MapXYPoint  # XY coordinates of the person's neck, parallel to the map  
