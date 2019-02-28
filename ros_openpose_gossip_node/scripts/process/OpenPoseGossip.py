@@ -628,10 +628,10 @@ class OpenPoseGossip():
             #print "\tCall hand:\t" + str(callHand)
             #print "\tDistance:\t" 
             
-            if RawPoseIndex.Neck in person.body_part :
-                Cam2MapXYPoint = self.getCam2MapXYPoint(person.body_part[RawPoseIndex.Neck].x, distance)
-            else:
-                Cam2MapXYPoint = Point32()
+            #if RawPoseIndex.Neck in person.body_part :
+            #Cam2MapXYPoint = self.getCam2MapXYPoint(10, 10) #distance)
+            #else:
+            Cam2MapXYPoint = Point32(x=1, y=2)          # person.body_part[RawPoseIndex.Neck].x
 
 
             personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance, Cam2MapXYPoint))
@@ -651,7 +651,9 @@ class OpenPoseGossip():
             print "Person " + str(num) 
             print "\tPosture:\t" + personEnriched[3]
             print "\tCall hand:\t" + str(personEnriched[4]  )
-            print "\tDistance:\t" + str(personEnriched[5]   )        
+            print "\tDistance:\t" + str(personEnriched[5]   )      
+
+            print "\tCam2Map_XY:\t" + str(personEnriched[6] )   
 
             pg.id = num
             pg.posture = personEnriched[3]
