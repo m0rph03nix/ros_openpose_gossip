@@ -475,7 +475,7 @@ class OpenPoseGossip():
         y_length = max_y - min_y
 
         if ("R_NoseToEye" in limbs['abs']) and ("L_NoseToEye" in limbs['abs']) :
-            eyes_to_hair = (limbs['abs']["R_NoseToEye"] + limbs['abs']["R_NoseToEye"]) / 2
+            eyes_to_hair = (limbs['abs']["R_NoseToEye"] + limbs['abs']["L_NoseToEye"]) / 2
         elif ("R_NoseToEye" in limbs['abs']) :
             eyes_to_hair = limbs['abs']["R_NoseToEye"]
         elif ("L_NoseToEye" in limbs['abs']) :
@@ -619,11 +619,54 @@ class OpenPoseGossip():
 
     def getCam2MapXYPoint(self, neck_x, distance):
         
-            HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
-            #Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
-            Phi = (HFov / 2.0) *  (neck_x - self.image_w / 2)/(self.image_w/2) #Angle from the center of the camera to neck_x
-            print "####PHI = " + str(Phi)
-            return Point32(    x = distance  , y = distance * sin(Phi)      )
+        HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
+        #Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
+        Phi = (HFov / 2.0) *  (neck_x - self.image_w / 2)/(self.image_w/2) #Angle from the center of the camera to neck_x
+        return Point32(    x = distance  , y = distance * sin(Phi)      )
+
+
+    def getOrientation(self, limbs, body_part):
+
+        front = 0
+        right = 0
+        left = 0
+        back = 0
+
+        # If ears 
+        if (body_part[RawPoseIndex.R_Ear ].confidence != 0) and (body_part[RawPoseIndex.L_Ear ].confidence != 0) :
+            
+            # If no eyes and nose
+            if (body_part[RawPoseIndex.Nose ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0):
+                back += 1
+            
+            # If eyes and nose
+            elif (body_part[RawPoseIndex.Nose ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0):
+                R = limbs['abs']["R_EyeToEar"]               
+                L = limbs['abs']["L_EyeToEar"]
+                e = abs(R-L)/R
+                if e < 0.2 :
+                    front += 1
+        
+
+        R_confidence = body_part[RawPoseIndex.R_Ear].confidence + body_part[RawPoseIndex.R_Eye].confidence
+        L_confidence = body_part[RawPoseIndex.L_Ear].confidence + body_part[RawPoseIndex.L_Eye].confidence
+        e = 2 * (R_confidence - L_confidence) / (R_confidence + L_confidence)
+        if e > 0.1 :
+            right += 1
+        elif  e < -0.1 :
+            left += 1
+
+
+    def faceConfidence(self, body_part):
+
+        confidence =    \
+                        (body_part[RawPoseIndex.R_Ear ].confidence  \
+                        + body_part[RawPoseIndex.L_Ear ].confidence \
+                        + body_part[RawPoseIndex.Nose ].confidence  \
+                        + body_part[RawPoseIndex.R_Eye ].confidence \
+                        + body_part[RawPoseIndex.L_Eye ].confidence) / 5
+
+        return confidence
 
 
 
@@ -632,8 +675,9 @@ class OpenPoseGossip():
             HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
             #Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
             Phi = (HFov / 2.0) *  (neck_x - self.image_w / 2)/(self.image_w/2) #Angle from the center of the camera to neck_x
-            print "####PHI = " + str(Phi)
-            return Point32(    x = distance  , y = distance * sin(Phi)      )
+
+            positionXY = Point32(    x = distance  , y = distance * sin(Phi)      )
+
 
 
 
@@ -709,7 +753,10 @@ class OpenPoseGossip():
 
             #pg.shirtRect = tuppRefLimb
             #pg.trouserRect = 
-            pg.distanceEval = personEnriched[5]        
+            pg.distanceEval = personEnriched[5]       
+
+            pg.faceConfidence = self.faceConfidence(personEnriched[0]) 
+            print "\Face COnfidence:\t" + str(pg.faceConfidence )
 
             pg.Cam2MapXYPoint = personEnriched[6]   
 
