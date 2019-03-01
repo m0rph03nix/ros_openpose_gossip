@@ -137,6 +137,10 @@ class OpenPoseGossip():
                 else:
                     stand_up_score -= 0    
 
+        if (body_part[RawPoseIndex.Neck ].confidence != 0):
+            if body_part[RawPoseIndex.Neck ].y < ( self.image_h / 3 ) :
+                stand_up_score += 4
+
         #Sitting
         if "R_Thigh" and "R_Calf" in limbs['y'] :
             if limbs['y']['R_Calf'] > limbs['y']['R_Thigh']:
