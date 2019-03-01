@@ -625,36 +625,62 @@ class OpenPoseGossip():
         return Point32(    x = distance  , y = distance * sin(Phi)      )
 
 
-    def getOrientation(self, limbs, body_part):
+    def getOrientation(self, body_part, limbs):
 
         front = 0
         right = 0
         left = 0
         back = 0
+        orientation = ""
 
         # If ears 
         if (body_part[RawPoseIndex.R_Ear ].confidence != 0) and (body_part[RawPoseIndex.L_Ear ].confidence != 0) :
             
-            # If no eyes and nose
+            # If no eyes nor nose
             if (body_part[RawPoseIndex.Nose ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0):
                 back += 1
             
             # If eyes and nose
             elif (body_part[RawPoseIndex.Nose ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0):
-                R = limbs['abs']["R_EyeToEar"]               
-                L = limbs['abs']["L_EyeToEar"]
-                e = abs(R-L)/R
-                if e < 0.2 :
-                    front += 1
+                #R = limbs['abs']["R_EyeToEar"]               
+                #L = limbs['abs']["L_EyeToEar"]
+                #e = abs(R-L)/R
+                #if e < 0.2 :
+                front += 1
+
+        elif (body_part[RawPoseIndex.L_Shoulder].confidence !=0) and (body_part[RawPoseIndex.R_Shoulder].confidence !=0) :
+            if body_part[RawPoseIndex.L_Shoulder].x > body_part[RawPoseIndex.R_Shoulder] :
+                back += 1
         
 
-        R_confidence = body_part[RawPoseIndex.R_Ear].confidence + body_part[RawPoseIndex.R_Eye].confidence
-        L_confidence = body_part[RawPoseIndex.L_Ear].confidence + body_part[RawPoseIndex.L_Eye].confidence
+        R_confidence = body_part[RawPoseIndex.R_Ear].confidence + body_part[RawPoseIndex.R_Eye].confidence + body_part[RawPoseIndex.R_Shoulder].confidence
+        L_confidence = body_part[RawPoseIndex.L_Ear].confidence + body_part[RawPoseIndex.L_Eye].confidence + body_part[RawPoseIndex.L_Shoulder].confidence
         e = 2 * (R_confidence - L_confidence) / (R_confidence + L_confidence)
         if e > 0.1 :
-            right += 1
+            right += e * 10.0
         elif  e < -0.1 :
-            left += 1
+            left += -e * 10.0
+
+        if front > back :
+            orientation = "Front"
+        elif front < back :
+            orientation = "Back"
+        
+        if right >= 1:
+            if orientation != "":
+                orientation += " "
+            orientation += "Right"
+
+        if left >= 1:
+            if orientation != "":
+                orientation += " "
+            orientation += "Left"   
+
+        if orientation == "":
+            orientation = "undefined"
+
+        return orientation     
+
 
 
     def faceConfidence(self, body_part):
@@ -757,6 +783,9 @@ class OpenPoseGossip():
 
             pg.faceConfidence = self.faceConfidence(personEnriched[0]) 
             print "\Face COnfidence:\t" + str(pg.faceConfidence )
+
+            pg.orientation = self.getOrientation(personEnriched[0], personEnriched[1])
+            print "\orientation:\t" + str(pg.orientation )
 
             pg.Cam2MapXYPoint = personEnriched[6]   
 

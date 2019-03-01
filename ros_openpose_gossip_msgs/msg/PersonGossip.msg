@@ -10,3 +10,4 @@ geometry_msgs/Polygon   trouserRect     # coordinates of trouser rectangle sampl
 float32                 distanceEval    # Distance evaluation in meters from 2D informations
 geometry_msgs/Point32   Cam2MapXYPoint  # XY coordinates of the person's neck, parallel to the map  
 float32                 faceConfidence  # Face confidence
+string                  orientation     # person orientation : "Front" "Back" "Right" "Left" "Front Right" "Front Left"
