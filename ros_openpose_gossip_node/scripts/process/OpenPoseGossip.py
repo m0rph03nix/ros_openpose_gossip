@@ -25,16 +25,12 @@ import rospkg
 
 
 
-
-# Node example class.
 class OpenPoseGossip():
 
-    # Must have __init__(self) function for a class, similar to a C++ class constructor.
     def __init__(self):
 
         rospack = rospkg.RosPack()
 
-        # get the file path for rospy_tutorials
         package_path=rospack.get_path('ros_openpose_gossip_node')
 
         self.image_w = 0
@@ -555,19 +551,19 @@ class OpenPoseGossip():
 
     def getShirtRect(self, body_part):
 
-        if (RawPoseIndex.L_Hip in body_part) and (RawPoseIndex.R_Hip in body_part) and (RawPoseIndex.Neck in body_part) :
+        if (body_part[RawPoseIndex.L_Hip ].confidence != 0) and (body_part[RawPoseIndex.R_Hip ].confidence != 0) and (body_part[RawPoseIndex.Neck ].confidence != 0) :
             x = fabs( body_part[RawPoseIndex.L_Hip].x - body_part[RawPoseIndex.R_Hip].x )
             y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.R_Hip].y )            
             middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.R_Hip].x ) / 2
             middle_y = (body_part[RawPoseIndex.Neck].y * 2 + body_part[RawPoseIndex.R_Hip].y + body_part[RawPoseIndex.L_Hip].y ) / 4
 
-        elif (RawPoseIndex.L_Hip in body_part) and (RawPoseIndex.Neck in body_part) :
+        elif (body_part[RawPoseIndex.L_Hip ].confidence != 0) and (body_part[RawPoseIndex.Neck ].confidence != 0) :
             x = fabs( body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.L_Hip].x )
             y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.L_Hip].y )            
             middle_x = ( body_part[RawPoseIndex.L_Hip].x + body_part[RawPoseIndex.Neck].x ) / 2
             middle_y = (body_part[RawPoseIndex.Neck].y + body_part[RawPoseIndex.L_Hip].y ) / 2
         
-        elif (RawPoseIndex.R_Hip in body_part) and (RawPoseIndex.Neck in body_part) :
+        elif (body_part[RawPoseIndex.R_Hip ].confidence != 0) and (body_part[RawPoseIndex.Neck ].confidence != 0) :
             x = fabs( body_part[RawPoseIndex.Neck].x - body_part[RawPoseIndex.R_Hip].x )
             y = fabs( body_part[RawPoseIndex.Neck].y - body_part[RawPoseIndex.R_Hip].y )               
             middle_x = ( body_part[RawPoseIndex.R_Hip].x + body_part[RawPoseIndex.Neck].x ) / 2
@@ -618,6 +614,16 @@ class OpenPoseGossip():
 
 
     def getCam2MapXYPoint(self, neck_x, distance):
+        
+            HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
+            #Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
+            Phi = (HFov / 2.0) *  (neck_x - self.image_w / 2)/(self.image_w/2) #Angle from the center of the camera to neck_x
+            print "####PHI = " + str(Phi)
+            return Point32(    x = distance  , y = distance * sin(Phi)      )
+
+
+
+    def getPoseOnTheGround(self, neck_x, distance):
         
             HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
             #Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
@@ -678,6 +684,7 @@ class OpenPoseGossip():
             print "Person " + str(num) 
             print "\tPosture:\t" + personEnriched[3]
             print "\tCall hand:\t" + str(personEnriched[4]  )
+
             print "\tDistance:\t" + str(personEnriched[5]   )      
 
             print "\tCam2Map_XY:\t" + str(personEnriched[6] )   
@@ -691,6 +698,10 @@ class OpenPoseGossip():
             pg.shirtRect.points = self.getShirtRect(personEnriched[0])
             pg.trouserRect.points = self.getTrouserRect(personEnriched[0], personEnriched[1])
 
+            print "\tBody Bounding Box:\t" + str(pg.boundingBox.points  )
+            print "\tHead Bounding Box:\t" + str(pg.headRect.points  )
+            print "\tShirt Sample:\t" + str(pg.shirtRect.points  )
+            print "\Trousers Sample:\t" + str(pg.trouserRect.points  )
 
             #pg.shirtRect = tuppRefLimb
             #pg.trouserRect = 
