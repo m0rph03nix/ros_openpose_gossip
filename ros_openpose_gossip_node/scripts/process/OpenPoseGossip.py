@@ -439,7 +439,7 @@ class OpenPoseGossip():
         for num in xrange(1,9):
             limbs_norm = self.LoadLimbsProfil(num)
             if limb_key in limbs_norm.keys():
-                norm_px_profils[num] = self.LoadLimbsProfil(num)[limb_key] * (1280.0 / float(self.image_w))
+                norm_px_profils[num] = self.LoadLimbsProfil(num)[limb_key] * ( float(self.image_w) / 1280.0 )
 
         # return pair of normalized value with the closest value to the reference limb
         pair1 = min(norm_px_profils.items(), key=lambda (_, v): abs(v - limbs["abs"][limb_key]))
@@ -786,6 +786,8 @@ class OpenPoseGossip():
 
             pg.orientation = self.getOrientation(personEnriched[0], personEnriched[1])
             print "\orientation:\t" + str(pg.orientation )
+
+            print "#########\n" + str(self.image_w) + "\n#########"
 
             pg.Cam2MapXYPoint = personEnriched[6]   
 
