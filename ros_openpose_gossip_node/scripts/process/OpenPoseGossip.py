@@ -11,7 +11,8 @@ __status__ = "Robocup 2018"
 
 import rospy
 from std_msgs.msg import String
-from geometry_msgs.msg import Polygon, Point32
+from geometry_msgs.msg import Polygon, Point32, Pose, Quaternion
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from openpose_ros_srvs.srv import DetectPeoplePoseFromImg
 from openpose_ros_msgs.msg import Persons, PersonDetection, BodyPartDetection
 from ros_openpose_gossip_msgs.msg import PersonGossip, PersonsGossip
@@ -631,47 +632,63 @@ class OpenPoseGossip():
         right = 0
         left = 0
         back = 0
+        angle = 0.0
         orientation = ""
 
-        # If ears 
-        if (body_part[RawPoseIndex.R_Ear ].confidence != 0) and (body_part[RawPoseIndex.L_Ear ].confidence != 0) :
-            
-            # If no eyes nor nose
-            if (body_part[RawPoseIndex.Nose ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0):
-                back += 1
-            
-            # If eyes and nose
-            elif (body_part[RawPoseIndex.Nose ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0):
-                #R = limbs['abs']["R_EyeToEar"]               
-                #L = limbs['abs']["L_EyeToEar"]
-                #e = abs(R-L)/R
-                #if e < 0.2 :
-                front += 1
+        ## If ears 
+        #if (body_part[RawPoseIndex.R_Ear ].confidence != 0) and (body_part[RawPoseIndex.L_Ear ].confidence != 0) :
+        #    
+        #    # If no eyes nor nose
+        #    if (body_part[RawPoseIndex.Nose ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0) and (body_part[RawPoseIndex.R_Eye ].confidence == 0):
+        #        back += 1
+        #    
+        #    # If eyes and nose
+        #    elif (body_part[RawPoseIndex.Nose ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0) and (body_part[RawPoseIndex.R_Eye ].confidence != 0):
+        #        #R = limbs['abs']["R_EyeToEar"]               
+        #        #L = limbs['abs']["L_EyeToEar"]
+        #        #e = abs(R-L)/R
+        #        #if e < 0.2 :
+        #        front += 1
 
-        elif (body_part[RawPoseIndex.L_Shoulder].confidence !=0) and (body_part[RawPoseIndex.R_Shoulder].confidence !=0) :
-            if body_part[RawPoseIndex.L_Shoulder].x > body_part[RawPoseIndex.R_Shoulder] :
-                back += 1
+        if (body_part[RawPoseIndex.Nose ].confidence != 0) :
+            front += 1
+        else :
+            back += 0.5
         
+        if (body_part[RawPoseIndex.L_Shoulder].confidence !=0) and (body_part[RawPoseIndex.R_Shoulder].confidence !=0) :
+            if body_part[RawPoseIndex.L_Shoulder].x < body_part[RawPoseIndex.R_Shoulder].x :
+                back += 1
+            else :
+                front += 1
 
         R_confidence = body_part[RawPoseIndex.R_Ear].confidence + body_part[RawPoseIndex.R_Eye].confidence + body_part[RawPoseIndex.R_Shoulder].confidence
         L_confidence = body_part[RawPoseIndex.L_Ear].confidence + body_part[RawPoseIndex.L_Eye].confidence + body_part[RawPoseIndex.L_Shoulder].confidence
-        e = 2 * (R_confidence - L_confidence) / (R_confidence + L_confidence)
+        
+        if R_confidence + L_confidence > 0.1 :
+            e = 2 * (R_confidence - L_confidence) / (R_confidence + L_confidence)
+        else :
+            e = 0
+
         if e > 0.1 :
-            right += e * 10.0
+            right += e * 45.0
         elif  e < -0.1 :
-            left += -e * 10.0
+            left += -e * 45.0
 
         if front > back :
-            orientation = "Front"
+            orientation = "Front"   
+            angle = 180 - min(left, 90) + min(right, 90)         
         elif front < back :
             orientation = "Back"
+            angle = min(left, 90) - min(right, 90)
+        else:
+            angle = angle + min(left, 90) - min(right, 90)        
         
-        if right >= 1:
+        if right >= 10:
             if orientation != "":
                 orientation += " "
             orientation += "Right"
 
-        if left >= 1:
+        if left >= 10:
             if orientation != "":
                 orientation += " "
             orientation += "Left"   
@@ -679,7 +696,7 @@ class OpenPoseGossip():
         if orientation == "":
             orientation = "undefined"
 
-        return orientation     
+        return (orientation, angle) 
 
 
 
@@ -696,14 +713,18 @@ class OpenPoseGossip():
 
 
 
-    def getPoseOnTheGround(self, neck_x, distance):
+    def getPoseOnTheGround(self, neck_x, distance, persAngle):
         
             HFov = 57.2 * pi / 180.0  # Horizontal field of view of the front Pepper Camera
             #Phi = (HFov / 2.0) * ( (2*neck_x)/self.image_w + 1)  #Angle from the center of the camera to neck_x
             Phi = (HFov / 2.0) *  (neck_x - self.image_w / 2)/(self.image_w/2) #Angle from the center of the camera to neck_x
 
-            positionXY = Point32(    x = distance  , y = distance * sin(Phi)      )
+            p = Pose()
+            p.position.x = distance  
+            p.position.y = -distance * sin(Phi)  
+            p.orientation = Quaternion( *quaternion_from_euler(0, 0, persAngle*pi/180.0) )
 
+            return p
 
 
 
@@ -735,13 +756,13 @@ class OpenPoseGossip():
             #print "\tCall hand:\t" + str(callHand)
             #print "\tDistance:\t" 
             
-            #if RawPoseIndex.Neck in person.body_part :
-            Cam2MapXYPoint = self.getCam2MapXYPoint(person.body_part[RawPoseIndex.Neck].x, distance)
-            #else:
-            #Cam2MapXYPoint = Point32(x=1, y=2)          # person.body_part[RawPoseIndex.Neck].x
+
+            #Cam2MapXYPoint = self.getCam2MapXYPoint(person.body_part[RawPoseIndex.Neck].x, distance)
+
+            #poseOnTheGround = self.getPoseOnTheGround(person.body_part[RawPoseIndex.Neck].x, distance, self.getOrientation(person.body_part, limbs)[1] )
 
 
-            personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance, Cam2MapXYPoint))
+            personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance))
             #personsEnriched.append((person.body_part, limbs, joints, posture, handPosture, distance))
 
         personsEnrichedSorted = sorted(personsEnriched, key=lambda attributes: attributes[0][RawPoseIndex.Neck].x)   # sort by     
@@ -761,7 +782,7 @@ class OpenPoseGossip():
 
             print "\tDistance:\t" + str(personEnriched[5]   )      
 
-            print "\tCam2Map_XY:\t" + str(personEnriched[6] )   
+            #print "\tCam2Map_XY:\t" + str(personEnriched[6] )   
 
             pg.id = num
             pg.posture = personEnriched[3]
@@ -784,12 +805,15 @@ class OpenPoseGossip():
             pg.faceConfidence = self.faceConfidence(personEnriched[0]) 
             print "\Face COnfidence:\t" + str(pg.faceConfidence )
 
-            pg.orientation = self.getOrientation(personEnriched[0], personEnriched[1])
-            print "\orientation:\t" + str(pg.orientation )
+            pg.orientation, persAngle = self.getOrientation(personEnriched[0], personEnriched[1])
+
+
+            #poseOnTheGround = 
+            pg.pose = self.getPoseOnTheGround(personEnriched[0][RawPoseIndex.Neck].x, pg.distanceEval, persAngle)
+            
+            print "\orientation:\t" + str(pg.orientation ) + " --> " + str(persAngle) + " deg"
 
             print "#########\n" + str(self.image_w) + "\n#########"
-
-            pg.Cam2MapXYPoint = personEnriched[6]   
 
             pgs.personsGossip.append(pg)
         

@@ -41,8 +41,8 @@ class Test_OpenPoseGossip():
         rospy.init_node('Test_OpenPoseGossip', anonymous=True)
 
         #rospy.Subscriber("/pepper_robot/naoqi_driver/camera/front/image_raw", Image, self.img_callback)
-
-	rospy.Subscriber("/pepper_robot/camera/front/image_raw, Image, self.img_callback)
+        
+        rospy.Subscriber("/pepper_robot/camera/front/image_raw", Image, self.img_callback)
 
 
         #call service to learn people

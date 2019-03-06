@@ -8,6 +8,7 @@ geometry_msgs/Polygon   headRect        # coordinates of a person's head boundin
 geometry_msgs/Polygon   shirtRect       # coordinates of shirt rectangle sample 
 geometry_msgs/Polygon   trouserRect     # coordinates of trouser rectangle sample
 float32                 distanceEval    # Distance evaluation in meters from 2D informations
-geometry_msgs/Point32   Cam2MapXYPoint  # XY coordinates of the person's neck, parallel to the map  
+geometry_msgs/Pose      pose            # Pose of the person's neck, on robot local map  
 float32                 faceConfidence  # Face confidence
 string                  orientation     # person orientation : "Front" "Back" "Right" "Left" "Front Right" "Front Left"
+
