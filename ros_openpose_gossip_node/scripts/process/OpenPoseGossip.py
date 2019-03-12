@@ -212,9 +212,9 @@ class OpenPoseGossip():
 
         #print "test: %d" %  RawPoseIndex.L_Eye
 
-        print "\tsitting: "   + str(sitting_score)
-        print "\tstanding: "  + str(stand_up_score)
-        print "\tlying: "     + str(lying_score)
+        rospy.logdebug( "\tsitting: "   + str(sitting_score) )
+        rospy.logdebug( "\tstanding: "  + str(stand_up_score) )
+        rospy.logdebug( "\tlying: "     + str(lying_score) )
 
 
         if sitting_score > stand_up_score:
@@ -426,7 +426,7 @@ class OpenPoseGossip():
         normalized_limbs = {}
         norm_limbs = self.LoadLimbsProfil(3)
         for key in limbs["abs"]:
-            normalized_limbs[key] = (1280.0 / float(self.image_w)) * limbs["abs"][key] / norm_limbs[key]
+            normalized_limbs[key] = ( float(self.image_w) / 1280.0 ) * limbs["abs"][key] / norm_limbs[key]
   
         max_key = max(normalized_limbs) 
 
@@ -501,7 +501,7 @@ class OpenPoseGossip():
         #DownLeft    =   Point32(    x = min_x   , y = max_y     )
         DownRight   =   Point32(    x = max_x   , y = max_y     )
 
-        print "bb: " + str([ TopLeft, DownRight ])
+        rospy.logdebug( "bb: " + str([ TopLeft, DownRight ]) )
 
         return [ TopLeft, DownRight ]     
 
@@ -742,7 +742,7 @@ class OpenPoseGossip():
             limbs = self.PartsToLimbs(person)
             joints = self.PartsToJoints(person)
 
-            print "Person " + str(num) #+ " at " + str(float(person.body_part[RawPoseIndex.Neck].x)) + " %"
+            rospy.logdebug( "Person " + str(num) )
 
             posture = self.EstimatePosture(limbs, joints, person.body_part)
             
@@ -776,11 +776,11 @@ class OpenPoseGossip():
         for num, personEnriched in enumerate(personsEnrichedSorted):  
             pg = PersonGossip()
 
-            print "Person " + str(num) 
-            print "\tPosture:\t" + personEnriched[3]
-            print "\tCall hand:\t" + str(personEnriched[4]  )
+            rospy.logdebug( "Person " + str(num) )
+            rospy.logdebug( "\tPosture:\t" + personEnriched[3] )
+            rospy.logdebug( "\tCall hand:\t" + str(personEnriched[4]) )
 
-            print "\tDistance:\t" + str(personEnriched[5]   )      
+            rospy.logdebug( "\tDistance:\t" + str(personEnriched[5]) )      
 
             #print "\tCam2Map_XY:\t" + str(personEnriched[6] )   
 
@@ -793,17 +793,17 @@ class OpenPoseGossip():
             pg.shirtRect.points = self.getShirtRect(personEnriched[0])
             pg.trouserRect.points = self.getTrouserRect(personEnriched[0], personEnriched[1])
 
-            print "\tBody Bounding Box:\t" + str(pg.boundingBox.points  )
-            print "\tHead Bounding Box:\t" + str(pg.headRect.points  )
-            print "\tShirt Sample:\t" + str(pg.shirtRect.points  )
-            print "\Trousers Sample:\t" + str(pg.trouserRect.points  )
+            rospy.logdebug( "\tBody Bounding Box:\t" + str(pg.boundingBox.points  ) )
+            rospy.logdebug( "\tHead Bounding Box:\t" + str(pg.headRect.points  ) )
+            rospy.logdebug( "\tShirt Sample:\t" + str(pg.shirtRect.points  ) )
+            rospy.logdebug( "\Trousers Sample:\t" + str(pg.trouserRect.points  ) )
 
             #pg.shirtRect = tuppRefLimb
             #pg.trouserRect = 
             pg.distanceEval = personEnriched[5]       
 
             pg.faceConfidence = self.faceConfidence(personEnriched[0]) 
-            print "\Face COnfidence:\t" + str(pg.faceConfidence )
+            rospy.logdebug( "\Face COnfidence:\t" + str(pg.faceConfidence ) )
 
             pg.orientation, persAngle = self.getOrientation(personEnriched[0], personEnriched[1])
 
@@ -811,9 +811,9 @@ class OpenPoseGossip():
             #poseOnTheGround = 
             pg.pose = self.getPoseOnTheGround(personEnriched[0][RawPoseIndex.Neck].x, pg.distanceEval, persAngle)
             
-            print "\orientation:\t" + str(pg.orientation ) + " --> " + str(persAngle) + " deg"
+            rospy.logdebug( "\orientation:\t" + str(pg.orientation ) + " --> " + str(persAngle) + " deg" )
 
-            print "#########\n" + str(self.image_w) + "\n#########"
+            rospy.logdebug( "#########\n" + str(self.image_w) + "\n#########" )
 
             pgs.personsGossip.append(pg)
         
