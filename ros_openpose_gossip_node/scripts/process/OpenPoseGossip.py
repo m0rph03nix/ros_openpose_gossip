@@ -427,10 +427,16 @@ class OpenPoseGossip():
         norm_limbs = self.LoadLimbsProfil(3)
         for key in limbs["abs"]:
             normalized_limbs[key] = ( float(self.image_w) / 1280.0 ) * limbs["abs"][key] / norm_limbs[key]
-  
-        max_key = max(normalized_limbs) 
+            
+        #del normalized_limbs["R_NoseToEye"]
+        #del normalized_limbs["L_NoseToEye"]
+        #del normalized_limbs["R_EyeToEar"]
+        #del normalized_limbs["L_EyeToEar"]
 
-        return (max_key , normalized_limbs[max_key] )
+        #max_key = max(normalized_limbs) 
+        return max(normalized_limbs.items(), key=lambda (_,v): v )
+
+        #return (max_key , normalized_limbs[max_key] )
 
 
 
