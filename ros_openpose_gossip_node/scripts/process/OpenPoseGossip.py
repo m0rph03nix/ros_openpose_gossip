@@ -457,10 +457,12 @@ class OpenPoseGossip():
         pair2 = min(norm_px_profils.items(), key=lambda (_, v): abs(v - limbs["abs"][limb_key]))
         
         #determine linear fonction
-        a = (pair2[0] - pair1[0]) / (pair2[1] - pair1[1])
-        b = pair1[0] - a * pair1[1]
-
-        return a * limbs["abs"][limb_key] + b
+        if ( (pair2[1] - pair1[1]) != 0.0 ):
+            a = (pair2[0] - pair1[0]) / (pair2[1] - pair1[1])
+            b = pair1[0] - a * pair1[1]
+            return a * limbs["abs"][limb_key] + b
+        else:
+            return pair1[0]
 
 
 
