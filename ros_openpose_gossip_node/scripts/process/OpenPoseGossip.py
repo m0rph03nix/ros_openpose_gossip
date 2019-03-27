@@ -426,7 +426,8 @@ class OpenPoseGossip():
         normalized_limbs = {}
         norm_limbs = self.LoadLimbsProfil(3)
         for key in limbs["abs"]:
-            normalized_limbs[key] = ( float(self.image_w) / 1280.0 ) * limbs["abs"][key] / norm_limbs[key]
+            if key != "R_NoseToEye" and key != "L_NoseToEye" and key != "R_EyeToEar" and key != "L_EyeToEar":
+                normalized_limbs[key] = ( float(self.image_w) / 1280.0 ) * limbs["abs"][key] / norm_limbs[key]
             
         #del normalized_limbs["R_NoseToEye"]
         #del normalized_limbs["L_NoseToEye"]
