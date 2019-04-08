@@ -346,7 +346,16 @@ class OpenPoseGossip():
                 # Test hand call
                 elif body_part[wrist_LR].y < body_part[shoulder_LR].y :
                     hand_status[lr] = "Call"
-
+                elif body_part[RawPoseIndex.Nose].confidence > 0.1 :
+                    if body_part[elbow_LR].y < body_part[RawPoseIndex.Nose].y :
+                    hand_status[lr] = "Call"
+                elif body_part[RawPoseIndex.R_Ear].confidence > 0.1 :
+                    if body_part[elbow_LR].y < body_part[RawPoseIndex.R_Ear].y :
+                    hand_status[lr] = "Call"
+                elif body_part[RawPoseIndex.L_Ear].confidence > 0.1 :
+                    if body_part[elbow_LR].y < body_part[RawPoseIndex.L_Ear].y :
+                    hand_status[lr] = "Call"     
+                    
                 else :
                     hand_status[lr] = "Undefined"
                     
