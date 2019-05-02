@@ -12,7 +12,11 @@ openpose_gossip gives informations on people sorted from left to right such as :
 - shirtRect         # coordinates of shirt rectangle sample 
 - trouserRect       # coordinates of trouser rectangle sample
 - distanceEval      # Distance evaluation in meters from 2D informations (see 5.  Calibration)
+- pose              # Pose of the person's neck, on robot local map
+- faceConfidence    # Face confidence
+- orientation       # person orientation : "Front" "Back" "Right" "Left" "Front Right" "Front Left"
 </pre>
+
 
 This program was done for the pepper robot (front camera) with some specifications :
 - /!\ **posture** needs camera to be parallel to the ground
