@@ -348,13 +348,13 @@ class OpenPoseGossip():
                     hand_status[lr] = "Call"
                 elif body_part[RawPoseIndex.Nose].confidence > 0.1 :
                     if body_part[elbow_LR].y < body_part[RawPoseIndex.Nose].y :
-                    hand_status[lr] = "Call"
+                        hand_status[lr] = "Call"
                 elif body_part[RawPoseIndex.R_Ear].confidence > 0.1 :
                     if body_part[elbow_LR].y < body_part[RawPoseIndex.R_Ear].y :
-                    hand_status[lr] = "Call"
+                        hand_status[lr] = "Call"
                 elif body_part[RawPoseIndex.L_Ear].confidence > 0.1 :
                     if body_part[elbow_LR].y < body_part[RawPoseIndex.L_Ear].y :
-                    hand_status[lr] = "Call"     
+                        hand_status[lr] = "Call"
                     
                 else :
                     hand_status[lr] = "Undefined"
@@ -443,8 +443,15 @@ class OpenPoseGossip():
         #del normalized_limbs["R_EyeToEar"]
         #del normalized_limbs["L_EyeToEar"]
 
-        #max_key = max(normalized_limbs) 
+        #max_key = max(normalized_limbs)
+        if not normalized_limbs.items():
+            for key in limbs["abs"]:
+                if key == "R_NoseToEye" or key == "L_NoseToEye" or key == "R_EyeToEar" or key == "L_EyeToEar":
+                    normalized_limbs[key] = (float(self.image_w) / 1280.0) * limbs["abs"][key] / norm_limbs[key]
+
         return max(normalized_limbs.items(), key=lambda (_,v): v )
+
+
 
         #return (max_key , normalized_limbs[max_key] )
 
