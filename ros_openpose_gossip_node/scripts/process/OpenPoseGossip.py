@@ -449,6 +449,9 @@ class OpenPoseGossip():
                 if key == "R_NoseToEye" or key == "L_NoseToEye" or key == "R_EyeToEar" or key == "L_EyeToEar":
                     normalized_limbs[key] = (float(self.image_w) / 1280.0) * limbs["abs"][key] / norm_limbs[key]
 
+            if not normalized_limbs.items():
+                return None
+
         return max(normalized_limbs.items(), key=lambda (_,v): v )
 
 
@@ -459,6 +462,9 @@ class OpenPoseGossip():
 
     def EstimateDistance(self, limbs, limb_key):     
         norm_px_profils = {}
+
+        if limb_key is None:
+            return 0
 
         for num in xrange(1,9):
             limbs_norm = self.LoadLimbsProfil(num)
